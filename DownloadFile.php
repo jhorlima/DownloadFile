@@ -47,30 +47,26 @@ class DownloadFile {
      */
     public function download()
     {
-        if( is_object( $this->fileInfo ) ){
+        if( $this->fileInfo instanceof \SplFileInfo )
 
-            if( $this->fileInfo instanceof \SplFileInfo )
+            if ( $this->fileInfo->isFile() ) {
 
-                if ( $this->fileInfo->isFile() ) {
+                if( is_array( $this->validatorExtension ) )
+                    if( !in_array( $this->fileInfo->getExtension(), $this->validatorExtension) )
+                        throw new \Exception( "Extensão invalida!" );
 
-                    if( is_array( $this->validatorExtension ) )
-                        if( !in_array( $this->fileInfo->getExtension(), $this->validatorExtension) )
-                            throw new \Exception( "Extensão invalida!" );
+                if( !$this->fileInfo->isReadable() )
+                    throw new \Exception( "O Arquivo não pode ser lido!" );
 
-                    if( !$this->fileInfo->isReadable() )
-                        throw new \Exception( "O Arquivo não pode ser lido!" );
+                $finfo = new \finfo;
+                header("Content-Type: {$finfo->file( $this->fileInfo->getRealPath(), FILEINFO_MIME)}");
+                header("Content-Length: {$this->fileInfo->getSize()}");
+                header("Content-Disposition: attachment; filename={$this->fileInfo->getBasename()}");
+                readfile( $this->fileInfo->getRealPath() );
 
-                    $finfo = new \finfo;
-                    header("Content-Type: {$finfo->file( $this->fileInfo->getRealPath(), FILEINFO_MIME)}");
-                    header("Content-Length: {$this->fileInfo->getSize()}");
-                    header("Content-Disposition: attachment; filename={$this->fileInfo->getBasename()}");
-                    readfile( $this->fileInfo->getRealPath() );
-
-                } else
-                    throw new \Exception( "Por favor, adicione um arquivo valido!" );
-            else
-                throw new \Exception( "O objeto arquivo tem instancia inválida!" );
-        } else
+            } else
+                throw new \Exception( "Por favor, adicione um arquivo valido!" );
+        else
             throw new \Exception( "Por favor, adicione o arquivo primeiro!" );
     }
 }
