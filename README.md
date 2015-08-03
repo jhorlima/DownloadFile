@@ -7,7 +7,7 @@ getFileInfo = @return SplFileInfo object
 
 setFile = @param $filePatch, @return this object
 
-setValidatorExtension = @param extensionList, @return this object (optional)
+setValidatorExtension = @param validExtensionslist, @return this object (optional)
 
 download = @return file to download.
 
