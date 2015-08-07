@@ -13,6 +13,7 @@ class DownloadFile {
 
     private $validatorExtension;
     private $fileInfo;
+    private $newName;
 
     /**
      * @return SplFileInfo object
@@ -29,6 +30,29 @@ class DownloadFile {
     public function setFile( $filePatch )
     {
         $this->fileInfo = new \SplFileInfo( $filePatch );
+        return $this;
+    }
+
+    /**
+     * @param $newName
+     * @param bool $haveExtension
+     * @param null $extension
+     * @return $this
+     */
+    public function setNewName( $newName , $haveExtension = true , $extension = null ){
+
+        $this->newName = is_string( $newName ) ? $newName : null ;
+
+        if( !is_null( $this->newName ) && ( $haveExtension == false || !is_null( $extension ) ) ){
+
+            if( is_string( $extension ) )
+                $this->newName .= ".{$extension}";
+
+            elseif( $this->fileInfo instanceof \SplFileInfo && !$haveExtension )
+                $this->newName .= ".{$this->fileInfo->getExtension()}";
+
+        }
+
         return $this;
     }
 
@@ -58,10 +82,13 @@ class DownloadFile {
                 if( !$this->fileInfo->isReadable() )
                     throw new \Exception( "O Arquivo não pode ser lido!" );
 
+                if( is_null( $this->newName ) )
+                    $this->setNewName( $this->fileInfo->getBasename() );
+                    
                 $finfo = new \finfo;
                 header("Content-Type: {$finfo->file( $this->fileInfo->getRealPath(), FILEINFO_MIME)}");
                 header("Content-Length: {$this->fileInfo->getSize()}");
-                header("Content-Disposition: attachment; filename={$this->fileInfo->getBasename()}");
+                header("Content-Disposition: attachment; filename={$this->newName}");
                 readfile( $this->fileInfo->getRealPath() );
 
             } else
