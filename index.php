@@ -10,6 +10,7 @@ try {
     $downloadFile = new DownloadFile();
     $downloadFile->setFile($filePatch)
         ->setValidatorExtension($extensionList)
+        ->setNewName("newFile" , false, "png")
         ->download();
 
 } catch (Exception $e) {
